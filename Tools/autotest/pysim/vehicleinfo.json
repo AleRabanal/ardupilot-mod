@@ -196,6 +196,15 @@
                 ],
                 "external": true
             },
+            "gazebo-SIMAR": {
+                "waf_target": "bin/arducopter",
+                "default_params_filename": [
+                    "default_params/copter.parm",
+                    "default_params/gazebo-SIMAR.parm"
+                ],
+                "external": true
+            },  
+            
             "airsim-copter": {
                 "waf_target": "bin/arducopter",
                 "default_params_filename": [
