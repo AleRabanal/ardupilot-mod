@@ -144,6 +144,12 @@ class VehicleInfo(object):
                                             "default_params/gazebo-SIMAR.parm"],
                 "external": True,
             },
+            "gazebo-HexaCopterTilting": {
+                "waf_target": "bin/arducopter",
+                "default_params_filename": ["default_params/copter.parm",
+                                            "default_params/gazebo-HexaCopterTilting.parm"],
+                "external": True,
+            },
             "airsim-copter": {
                 "waf_target": "bin/arducopter",
                 "default_params_filename": ["default_params/copter.parm",

@@ -13,6 +13,7 @@ public:
     AP_MotorsMatrix_6DoF_Scripting(uint16_t speed_hz = AP_MOTORS_SPEED_DEFAULT) :
         AP_MotorsMatrix(speed_hz)
     {
+        // Usamos nuestro propio puntero estático local para el Singleton
         if (_singleton != nullptr) {
             AP_HAL::panic("AP_MotorsMatrix 6DoF must be singleton");
         }
@@ -58,6 +59,9 @@ protected:
     // Current offset angles, radians
     float _roll_offset;
     float _pitch_offset;
+
+    // Array histórico para algoritmo Unwrap de servos de inclinación (Tilt)
+    float _last_servo_angle_rad[AP_MOTORS_MAX_NUM_MOTORS];
 
 private:
     static AP_MotorsMatrix_6DoF_Scripting *_singleton;
