@@ -22,6 +22,7 @@
 #include <GCS_MAVLink/GCS.h>
 #include <SRV_Channel/SRV_Channel.h>
 
+
 extern const AP_HAL::HAL& hal;
 void AP_MotorsMatrix_6DoF_Scripting::output_to_motors()
 {
@@ -30,13 +31,12 @@ void AP_MotorsMatrix_6DoF_Scripting::output_to_motors()
         case SpoolState::GROUND_IDLE:
         {
             // Motores de empuje apagados y servos de inclinación al centro neutro (1500us)
-            // Gracias al offset de 0.5 en tu SDF, esto alineará los motores perfectamente boca arriba
             for (uint8_t i = 0; i < AP_MOTORS_MAX_NUM_MOTORS; i++) {
                 if (motor_enabled[i]) {
-                    if (i >= 6) {
+                    if (i >= 6 && i < 12) {
                         _actuator[i] = 0.5f; // Centro físico exacto -> Traducirá a 1500us
                         _last_servo_angle_rad[i - 6] = 0.0f; // Resetea histórico del unwrap
-                    } else {
+                    } else if (i < 6) {
                         _actuator[i] = 0.0f; // Motores de empuje apagados
                     }
                 }
@@ -46,26 +46,25 @@ void AP_MotorsMatrix_6DoF_Scripting::output_to_motors()
         case SpoolState::SPOOLING_UP:
         case SpoolState::THROTTLE_UNLIMITED:
         case SpoolState::SPOOLING_DOWN:
-            // EN VUELO: Convertimos las señales de mezcla virtuales en comandos físicos reales (Fv y Fl)
+            // EN VUELO: Convertimos las señales de mezcla en comandos físicos reales
             for (uint8_t i = 0; i < 6; i++) {
-                float F_v = _thrust_rpyt_out[i];     // Fuerza Vertical Teórica (Índices 0..5)
-                float F_l = _thrust_rpyt_out[i + 6]; // Fuerza Lateral Teórica (Índices 6..11)
+                // F_v proviene de la matriz de empuje vertical (0..5)
+                float F_v = _thrust_rpyt_out[i];     
+                
+                // F_l proviene de la matriz de componentes laterales (6..11)
+                float F_l = _thrust_rpyt_out[i + 6]; 
 
-                // ========================================================================
-                // CORRECCIÓN 1: PROTECCIÓN ANTI-INVERSIÓN VECTORIAL (Corrige el "Intenta Subir")
-                // Si el PID exige un empuje vertical negativo en motores no reversibles, 
-                // lo limitamos estrictamente a 0. Esto evita que la magnitud (thrust_mod) 
-                // vuelva a crecer de forma errónea y que el servo intente girar 180° (boca abajo).
-                // ========================================================================
+                // --- PROTECCIÓN ANTI-INVERSIÓN VECTORIAL ---
+                // Si el PID pide empuje negativo, lo limitamos a 0 para que el servo
+                // no intente dar una vuelta completa de 180 grados de forma brusca.
                 if (F_v < 0.0f) {
                     F_v = 0.0f;
                 }
 
                 // --- CÓMPUTO DEL MOTOR REAL ---
-                // Ahora thrust_mod disminuirá correctamente hacia cero si F_v disminuye
                 float thrust_mod = safe_sqrt((F_v * F_v) + (F_l * F_l));
                 
-                // CORRECCIÓN TELEMETRÍA LOG 93: Ralentí dinámico de protección (0.08f)
+                // Ralentí dinámico de protección
                 if (thrust_mod < 0.08f) {
                     thrust_mod = 0.08f; 
                 }
@@ -74,45 +73,34 @@ void AP_MotorsMatrix_6DoF_Scripting::output_to_motors()
                 _actuator[i] = thr_lin.thrust_to_actuator(thrust_mod);
 
                 // --- CÓMPUTO DEL SERVO REAL ---
-                // Al estar F_v limitado a >= 0, atan2f siempre se moverá estrictamente
-                // en el rango del hemisferio superior [-90°, +90°] (-PI/2 a +PI/2).
                 float angle_rad = atan2f(F_l, F_v + 0.001f);
 
-                // Algoritmo Unwrap para control continuo y evitar saltos de cuadrante bruscos
+                // Algoritmo Unwrap para evitar saltos bruscos
                 float diff = angle_rad - _last_servo_angle_rad[i];
                 while (diff < -M_PI)  diff += 2.0f * M_PI;
                 while (diff > M_PI)   diff -= 2.0f * M_PI;
 
                 float unwrapped_angle = _last_servo_angle_rad[i] + diff;
                 
-                // ========================================================================
-                // CORRECCIÓN 2: AJUSTE DE ESCALA CON GAZIBO (Corrige el error de ganancia x2)
-                // Modificamos el divisor máximo de asignación angular. Dado que tu SDF mapea 
-                // el rango completo de PWM a 360 grados totales (de -PI a +PI), el valor máximo 
-                // que corresponde al extremo superior del PWM (2000us) es PI radianes (180°).
-                // ========================================================================
+                // Rango límite configurado a PI debido al mapeo del SDF en Gazebo
                 float max_limit_rad = M_PI; 
                 unwrapped_angle = constrain_float(unwrapped_angle, -max_limit_rad, max_limit_rad);
                 _last_servo_angle_rad[i] = unwrapped_angle;
 
-                // Mapeo puro al rango [0.0, 1.0] donde 0.5f es el centro de ArduPilot (1500us -> 0 radianes)
+                // Guardamos el valor en el actuador del servo correspondiente (índices 6..11)
                 _actuator[i + 6] = 0.5f * (unwrapped_angle / max_limit_rad) + 0.5f;
             }
             break;
     }
 
-    // Envío final forzando el valor PWM directo para evitar conflictos de escalado interno
+    // Envío de señales físicas a los canales de salida asignados
     for (uint8_t i = 0; i < AP_MOTORS_MAX_NUM_MOTORS; i++) {
         if (motor_enabled[i]) {
             if (i < 6) {
-                // Motores (set_range): rango esperado [0, 4500]
+                // Motores físicos (0..5): rango esperado [0, 4500]
                 SRV_Channels::set_output_scaled(SRV_Channels::get_motor_function(i), _actuator[i] * 4500);
-            } else {
-                // ========================================================================
-                // CONTROL POR PWM DIRECTO: 
-                // Mapeamos el rango de actuador [0.0, 1.0] directamente a [1000, 2000] microsegundos.
-                // Esto elimina cualquier interferencia de los límites angulares nativos de ArduPilot.
-                // ========================================================================
+            } else if (i >= 6 && i < 12) {
+                // Servos físicos (6..11): Mapeo directo a microsegundos [1000, 2000]
                 float pwm_output = 1000.0f + (_actuator[i] * 1000.0f);
                 pwm_output = constrain_float(pwm_output, 1000.0f, 2000.0f);
                 
