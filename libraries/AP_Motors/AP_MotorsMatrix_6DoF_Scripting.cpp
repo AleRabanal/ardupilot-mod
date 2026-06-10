@@ -21,11 +21,13 @@
 #include "AP_MotorsMatrix_6DoF_Scripting.h"
 #include <GCS_MAVLink/GCS.h>
 #include <SRV_Channel/SRV_Channel.h>
+#include <AP_Logger/AP_Logger.h> // <-- AÑADE ESTA LÍNEA
 
 
 extern const AP_HAL::HAL& hal;
 void AP_MotorsMatrix_6DoF_Scripting::output_to_motors()
 {
+    // static uint8_t decim = 0;
     switch (_spool_state) {
         case SpoolState::SHUT_DOWN:
         case SpoolState::GROUND_IDLE:
@@ -43,54 +45,83 @@ void AP_MotorsMatrix_6DoF_Scripting::output_to_motors()
             }
             break;
         }
-        case SpoolState::SPOOLING_UP:
+       case SpoolState::SPOOLING_UP:
         case SpoolState::THROTTLE_UNLIMITED:
         case SpoolState::SPOOLING_DOWN:
+        {
             // EN VUELO: Convertimos las señales de mezcla en comandos físicos reales
+            float thrusts_mod[6];
+            float max_thrust = 0.0f;
+
+            // PASO 1: Calcular la magnitud bruta que pide el chasis para cada uno de los 6 motores
             for (uint8_t i = 0; i < 6; i++) {
-                // F_v proviene de la matriz de empuje vertical (0..5)
                 float F_v = _thrust_rpyt_out[i];     
-                
-                // F_l proviene de la matriz de componentes laterales (6..11)
                 float F_l = _thrust_rpyt_out[i + 6]; 
 
-                // --- PROTECCIÓN ANTI-INVERSIÓN VECTORIAL ---
-                // Si el PID pide empuje negativo, lo limitamos a 0 para que el servo
-                // no intente dar una vuelta completa de 180 grados de forma brusca.
-                if (F_v < 0.0f) {
-                    F_v = 0.0f;
+                thrusts_mod[i] = safe_sqrt((F_v * F_v) + (F_l * F_l));
+
+                if (thrusts_mod[i] > max_thrust) {
+                    max_thrust = thrusts_mod[i];
                 }
+            }
 
-                // --- CÓMPUTO DEL MOTOR REAL ---
-                float thrust_mod = safe_sqrt((F_v * F_v) + (F_l * F_l));
+            // Si algún motor se satura por encima de 1.0, atenuamos todos en la misma proporción 
+            // para que el dron no pierda estabilidad ni guiñada durante las traslaciones 6DoF.
+            float scale = (max_thrust > 1.0f) ? (1.0f / max_thrust) : 1.0f;
+            const float max_limit_rad = 2.0f * M_PI; 
+
+             
+                    AP::logger().Write( 
+                    "TILT", "TimeUS,T1,T2,T3,T4,T5,T6", "Qffffff", 
+                    AP_HAL::micros64(),
+                     thrusts_mod[0], 
+                     thrusts_mod[1], 
+                     thrusts_mod[2], 
+                     thrusts_mod[3], 
+                     thrusts_mod[4], 
+                     thrusts_mod[5] );
+
+            // PASO 2: Calcular el ángulo del servo y aplicar el empuje escalado a cada motor
+            for (uint8_t j = 0; j < 6; j++) {
+                // Volvemos a leer los componentes locales correspondientes al motor 'j'
+                float F_v = _thrust_rpyt_out[j];     
+                float F_l = _thrust_rpyt_out[j + 6]; 
+              
+
+                // --- CÓMPUTO DEL SERVO REAL (Dirección del vector) ---
+                float angle_rad = atan2f(F_l, F_v );
+
+                // --- CÓMPUTO DEL MOTOR REAL (Módulo escalado) ---
+                float thrust_mod = thrusts_mod[j] * scale;
+
+
+              
+
+               
+
+                // Ralentí dinámico de protección para evitar el apagado de la hélice en transiciones rápidas
+               /* if (thrust_mod < 0.05f) {
+                    thrust_mod = 0.05f; 
+                }*/
                 
-                // Ralentí dinámico de protección
-                if (thrust_mod < 0.08f) {
-                    thrust_mod = 0.08f; 
-                }
-                
-                thrust_mod = constrain_float(thrust_mod, 0.0f, 1.0f);
-                _actuator[i] = thr_lin.thrust_to_actuator(thrust_mod);
+                _actuator[j] = thr_lin.thrust_to_actuator(thrust_mod);
 
-                // --- CÓMPUTO DEL SERVO REAL ---
-                float angle_rad = atan2f(F_l, F_v + 0.001f);
-
-                // Algoritmo Unwrap para evitar saltos bruscos
-                float diff = angle_rad - _last_servo_angle_rad[i];
+                // Algoritmo Unwrap para evitar que el servo dé un giro completo de 360º innecesario
+                float diff = angle_rad - _last_servo_angle_rad[j];
                 while (diff < -M_PI)  diff += 2.0f * M_PI;
                 while (diff > M_PI)   diff -= 2.0f * M_PI;
 
-                float unwrapped_angle = _last_servo_angle_rad[i] + diff;
+                float unwrapped_angle = _last_servo_angle_rad[j] + diff;
                 
-                // Rango límite configurado a PI debido al mapeo del SDF en Gazebo
-                float max_limit_rad = M_PI; 
+                // Forzamos límites estrictos dentro del rango configurado para el SDF en Gazebo
                 unwrapped_angle = constrain_float(unwrapped_angle, -max_limit_rad, max_limit_rad);
-                _last_servo_angle_rad[i] = unwrapped_angle;
+                _last_servo_angle_rad[j] = unwrapped_angle;
 
-                // Guardamos el valor en el actuador del servo correspondiente (índices 6..11)
-                _actuator[i + 6] = 0.5f * (unwrapped_angle / max_limit_rad) + 0.5f;
+                // Guardamos la salida normalizada para el servo correspondiente (mapeo a 0.0 - 1.0)
+                _actuator[j + 6] = 0.5f * (unwrapped_angle / max_limit_rad) + 0.5f;
             }
             break;
+        }
     }
 
     // Envío de señales físicas a los canales de salida asignados
