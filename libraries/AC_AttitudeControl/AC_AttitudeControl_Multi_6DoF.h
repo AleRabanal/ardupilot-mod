@@ -64,7 +64,6 @@ public:
 
     // limiting lean angle based on throttle makes no sense for 6DoF, always allow 90 deg, return in centi-degrees
     float get_althold_lean_angle_max_cd() const override { return 18000.0f; }
-
     // set the attitude that will be used in 6DoF flight
     void set_offset_roll_pitch(float roll_deg, float pitch_deg) {
         roll_offset_deg = roll_deg;
@@ -80,6 +79,9 @@ public:
     void set_lateral_enable(bool b) {
         lateral_enable = b;
     }
+
+    float get_roll_offset_deg() const { return roll_offset_deg; }
+    float get_pitch_offset_deg() const { return pitch_offset_deg; }
 
 private:
 

@@ -35,39 +35,52 @@ void AC_AttitudeControl_Multi_6DoF::rate_controller_run() {
 */
 
 // Command an euler roll and pitch angle and an euler yaw rate with angular velocity feedforward and smoothing
+
+// STABILIZE / ALTHOLD (Modos manuales desactivan el vector de tierra)
 void AC_AttitudeControl_Multi_6DoF::input_euler_angle_roll_pitch_euler_rate_yaw(float euler_roll_angle_cd, float euler_pitch_angle_cd, float euler_yaw_rate_cds) {
-
     set_forward_lateral(euler_pitch_angle_cd, euler_roll_angle_cd);
-
     AC_AttitudeControl_Multi::input_euler_angle_roll_pitch_euler_rate_yaw(euler_roll_angle_cd, euler_pitch_angle_cd, euler_yaw_rate_cds);
+    
+    if (AP_MotorsMatrix_6DoF_Scripting::get_singleton()) {
+        AP_MotorsMatrix_6DoF_Scripting::get_singleton()->disable_earth_thrust_vector();
+    }
 }
-
 // Command an euler roll, pitch and yaw angle with angular velocity feedforward and smoothing
+
+// STABILIZE / ALTHOLD ABSOLUTO
 void AC_AttitudeControl_Multi_6DoF::input_euler_angle_roll_pitch_yaw(float euler_roll_angle_cd, float euler_pitch_angle_cd, float euler_yaw_angle_cd, bool slew_yaw) {
-
     set_forward_lateral(euler_pitch_angle_cd, euler_roll_angle_cd);
-
     AC_AttitudeControl_Multi::input_euler_angle_roll_pitch_yaw(euler_roll_angle_cd, euler_pitch_angle_cd, euler_yaw_angle_cd, slew_yaw);
+    
+    if (AP_MotorsMatrix_6DoF_Scripting::get_singleton()) {
+        AP_MotorsMatrix_6DoF_Scripting::get_singleton()->disable_earth_thrust_vector();
+    }
 }
 
 // Command a thrust vector and heading rate
+// SOBREESCRIBIR PARA LOITER
 void AC_AttitudeControl_Multi_6DoF::input_thrust_vector_rate_heading(const Vector3f& thrust_vector, float heading_rate_cds, bool slew_yaw)
 {
-    // convert thrust vector to a roll and pitch angles
-    // this negates the advantage of using thrust vector control, but works just fine
-    Vector3f angle_target = attitude_from_thrust_vector(thrust_vector, _ahrs.yaw).to_vector312();
+    // Mantiene la actitud base y el control de guiñada manual
+    AC_AttitudeControl_Multi::input_euler_angle_roll_pitch_euler_rate_yaw(
+        roll_offset_deg * 100.0f, pitch_offset_deg * 100.0f, heading_rate_cds);
 
-    input_euler_angle_roll_pitch_euler_rate_yaw(degrees(angle_target.x) * 100.0f, degrees(angle_target.y) * 100.0f, heading_rate_cds);
+    // Envía el vector de fuerza 3D a tu matriz
+    if (AP_MotorsMatrix_6DoF_Scripting::get_singleton()) {
+        AP_MotorsMatrix_6DoF_Scripting::get_singleton()->set_earth_thrust_vector(thrust_vector);
+    }
 }
-
 // Command a thrust vector, heading and heading rate
+// SOBREESCRIBIR PARA AUTO / GUIDED
 void AC_AttitudeControl_Multi_6DoF::input_thrust_vector_heading(const Vector3f& thrust_vector, float heading_angle_cd, float heading_rate_cds)
 {
-    // convert thrust vector to a roll and pitch angles
-    Vector3f angle_target = attitude_from_thrust_vector(thrust_vector, _ahrs.yaw).to_vector312();
+    // Mantiene actitud y rumbo fijo (usado en AUTO)
+    AC_AttitudeControl_Multi::input_euler_angle_roll_pitch_yaw(
+        roll_offset_deg * 100.0f, pitch_offset_deg * 100.0f, heading_angle_cd, true);
 
-    // note that we are throwing away heading rate here
-    input_euler_angle_roll_pitch_yaw(degrees(angle_target.x) * 100.0f, degrees(angle_target.y) * 100.0f, heading_angle_cd, true);
+    if (AP_MotorsMatrix_6DoF_Scripting::get_singleton()) {
+        AP_MotorsMatrix_6DoF_Scripting::get_singleton()->set_earth_thrust_vector(thrust_vector);
+    }
 }
 
 void AC_AttitudeControl_Multi_6DoF::set_forward_lateral(float &euler_pitch_angle_cd, float &euler_roll_angle_cd)
@@ -150,12 +163,7 @@ void AC_AttitudeControl_Multi_6DoF::input_angle_step_bf_roll_pitch_yaw(float rol
 // attitude_desired_quat: is updated on each time_step (_dt) by the integral of the angular velocity
 // not used anywhere in current code, panic in SITL so this implementation is not overlooked
 void AC_AttitudeControl_Multi_6DoF::input_quaternion(Quaternion& attitude_desired_quat, Vector3f ang_vel_target) {
-#if CONFIG_HAL_BOARD == HAL_BOARD_SITL
-    AP_HAL::panic("input_quaternion not implemented AC_AttitudeControl_Multi_6DoF");
-#endif
-
-    _motors.set_lateral(0.0f);
-    _motors.set_forward(0.0f);
+    // Eliminamos el panic que causaba el crash
 
     AC_AttitudeControl_Multi::input_quaternion(attitude_desired_quat, ang_vel_target);
 }

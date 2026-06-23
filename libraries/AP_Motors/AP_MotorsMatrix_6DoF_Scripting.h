@@ -5,12 +5,13 @@
 #include <AP_Math/AP_Math.h>
 #include <RC_Channel/RC_Channel.h>
 #include "AP_MotorsMatrix.h"
+#include <AP_Math/AP_Math.h>
 
 class AP_MotorsMatrix_6DoF_Scripting : public AP_MotorsMatrix {
 public:
 
     /// Constructor
-    AP_MotorsMatrix_6DoF_Scripting(uint16_t speed_hz = AP_MOTORS_SPEED_DEFAULT) :
+   AP_MotorsMatrix_6DoF_Scripting(uint16_t speed_hz = AP_MOTORS_SPEED_DEFAULT) :
         AP_MotorsMatrix(speed_hz)
     {
         // Usamos nuestro propio puntero estático local para el Singleton
@@ -38,6 +39,20 @@ public:
     // if the expected number of motors have been setup then set as initalized
     bool init(uint8_t expected_num_motors) override;
 
+    void build_effectiveness_matrix();
+        // La matriz de efectividad se construye dinámicamente en función de la geometría y configuración de los motores/servos
+        // Esto permite soportar diferentes configuraciones de drones 6DoF sin necesidad de hardcodear cada una
+    void compute_allocator();
+
+    // Nuevas funciones para recibir el vector 3D real de la Tierra
+    void set_earth_thrust_vector(const Vector3f& thrust_vector) {
+        _earth_thrust_vector = thrust_vector;
+        _use_earth_thrust = true;
+    }
+    void disable_earth_thrust_vector() {
+        _use_earth_thrust = false;
+    }
+
 protected:
     // output - sends commands to the motors
     void output_armed_stabilizing() override;
@@ -63,8 +78,27 @@ protected:
     // Array histórico para algoritmo Unwrap de servos de inclinación (Tilt)
     float _last_servo_angle_rad[AP_MOTORS_MAX_NUM_MOTORS];
 
+
+    float _A[6][12];
+    float _A_pinv[12][6];
+
+    bool _allocator_initialized = false;
+
+    bool calcular_pseudoinversa_6x12(const float A[6][12], float A_pinv[12][6]);
+
+    // Geometría física de los rotores (Hexacóptero Tilting)
+    float rotor_x[6];
+    float rotor_y[6];
+    float rotor_km[6];
+
+    float _angulo_acumulado[6] = {0.0f};
+    
+
 private:
+  Vector3f _earth_thrust_vector;
+    bool _use_earth_thrust = false;
     static AP_MotorsMatrix_6DoF_Scripting *_singleton;
+
 
 };
 

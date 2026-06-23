@@ -216,6 +216,11 @@
 # define MODE_LOITER_ENABLED ENABLED
 #endif
 
+#ifndef MODE_LOITER_6DOF_ENABLED
+# define MODE_LOITER_6DOF_ENABLED ENABLED
+#endif
+
+
 //////////////////////////////////////////////////////////////////////////////
 // Position Hold - enable holding of global position
 #ifndef MODE_POSHOLD_ENABLED

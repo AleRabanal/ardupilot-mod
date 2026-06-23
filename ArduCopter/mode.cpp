@@ -178,6 +178,11 @@ Mode *Copter::mode_from_mode_num(const Mode::Number mode)
             ret = &mode_turtle;
             break;
 #endif
+#if MODE_LOITER_6DOF_ENABLED == ENABLED
+        case Mode::Number::LOITER_6DOF:
+            ret = &mode_loiter6dof;
+            break;
+#endif
 
         default:
             break;
