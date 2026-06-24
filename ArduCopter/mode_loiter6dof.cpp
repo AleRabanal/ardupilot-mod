@@ -19,7 +19,7 @@ bool ModeLoiter6DoF::init(bool ignore_checks)
     }
     
     // Permitimos que el controlador de posición ignore los límites de 45 grados
-    pos_control->set_lean_angle_max_cd(18000.0f);
+    pos_control->set_lean_angle_max_cd(2000.0f);
 
     return true;
 }
@@ -28,7 +28,7 @@ bool ModeLoiter6DoF::init(bool ignore_checks)
 void ModeLoiter6DoF::run()
 {
     // 1. DESBLOQUEO: Permitimos al controlador trabajar en cualquier ángulo
-    pos_control->set_lean_angle_max_cd(18000.0f);
+    pos_control->set_lean_angle_max_cd(2000.0f);
 
     // 2. STICKS: Procesamos el mando para mover el punto de destino (pero no inclinamos)
     float target_roll, target_pitch;
