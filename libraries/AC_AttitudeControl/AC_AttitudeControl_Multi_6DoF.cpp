@@ -162,10 +162,44 @@ void AC_AttitudeControl_Multi_6DoF::input_angle_step_bf_roll_pitch_yaw(float rol
 // Command a Quaternion attitude with feedforward and smoothing
 // attitude_desired_quat: is updated on each time_step (_dt) by the integral of the angular velocity
 // not used anywhere in current code, panic in SITL so this implementation is not overlooked
-void AC_AttitudeControl_Multi_6DoF::input_quaternion(Quaternion& attitude_desired_quat, Vector3f ang_vel_target) {
-    // Eliminamos el panic que causaba el crash
 
-    AC_AttitudeControl_Multi::input_quaternion(attitude_desired_quat, ang_vel_target);
+void AC_AttitudeControl_Multi_6DoF::input_quaternion(Quaternion& attitude_desired_quat, Vector3f ang_vel_target) {
+    _motors.set_lateral(0.0f);
+    _motors.set_forward(0.0f);
+
+    // 1. Sincronizamos el objetivo de actitud interno con el deseado
+    _attitude_target = attitude_desired_quat;
+    _ang_vel_target = ang_vel_target;
+
+    // 2. Obtener la actitud física actual del dron (Body to NED)
+    Quaternion attitude_body;
+    _ahrs.get_quat_body_to_ned(attitude_body);
+
+    // 3. Calcular el error de cuaternión en el Frame del Cuerpo (Body Frame)
+    // Q_error = Q_body^-1 * Q_target
+    Quaternion error_quat = attitude_body.inverse() * _attitude_target;
+    error_quat.normalize();
+
+    // 4. Convertimos el cuaternión de error a un vector de rotación eje-ángulo (Axis-Angle)
+    Vector3f attitude_error;
+    error_quat.to_axis_angle(attitude_error);
+
+    // 5. Control Proporcional (P) Puro en los tres ejes del cuerpo
+    // Bypasseamos por completo la descomposición de ArduPilot y evitamos límites de 30/60 grados
+    _ang_vel_body.x = _p_angle_roll.kP() * attitude_error.x;
+    _ang_vel_body.y = _p_angle_pitch.kP() * attitude_error.y;
+    _ang_vel_body.z = _p_angle_yaw.kP() * attitude_error.z;
+
+    // 6. Añadir el feedforward de velocidad angular rotado al frame del cuerpo
+    Quaternion rotation_target_to_body = attitude_body.inverse() * _attitude_target;
+    Vector3f ang_vel_body_feedforward = rotation_target_to_body * _ang_vel_target;
+    _ang_vel_body += ang_vel_body_feedforward;
+
+    // Guardamos el error para que el estimador (EKF) gestione correctamente los resets
+    _attitude_ang_error = error_quat;
+
+    // NOTA: NO llamamos a la clase base AC_AttitudeControl_Multi::input_quaternion
+    // para evitar que se ejecute la lógica restrictiva estándar.
 }
 
 
