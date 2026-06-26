@@ -333,9 +333,9 @@ void AP_MotorsMatrix_6DoF_Scripting::build_effectiveness_matrix()
         const float x  = rotor_x[i];
         const float y  = rotor_y[i];
         const float km = rotor_km[i];
-        const float roll_scale  = 4.636f ;//1.0f / 0.275f;   // 3.636
+        const float roll_scale  = 8.636f ;//1.0f / 0.275f;   // 3.636
         const float pitch_scale = 5.202f ;//1.0f / 0.238f;   // 4.202
-        const float yaw_scale   = 6.636f; //1.0f / 0.275f;
+        const float yaw_scale   = 8.636f; //1.0f / 0.275f;
         const float fx_scale    = 0.8f;
         const float fy_scale    = 0.8f;
         const float fz_scale    = 0.7f;
