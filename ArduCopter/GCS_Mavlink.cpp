@@ -50,6 +50,7 @@ MAV_MODE GCS_MAVLINK_Copter::base_mode() const
     case Mode::Number::BRAKE:
     case Mode::Number::SMART_RTL:
     case Mode::Number::LOITER_6DOF:
+    case Mode::Number::GUIDED_6DOF: // <--- AÑADIR ESTA LÍNEA
         _base_mode |= MAV_MODE_FLAG_GUIDED_ENABLED;
         // note that MAV_MODE_FLAG_AUTO_ENABLED does not match what
         // APM does in any mode, as that is defined as "system finds its own goal
@@ -885,6 +886,17 @@ MAV_RESULT GCS_MAVLINK_Copter::handle_MAV_CMD_NAV_TAKEOFF(const mavlink_command_
         // param5 : latitude    (not supported)
         // param6 : longitude   (not supported)
         // param7 : altitude [metres]
+        
+        // --- CAMBIO PARA 6DoF ---
+    // Si no estamos en un modo que soporte navegación de despegue, ArduPilot suele forzar GUIDED.
+    // Añadimos GUIDED_6DOF a la excepción para que permanezca en tu modo.
+    if (copter.flightmode->mode_number() != Mode::Number::GUIDED_6DOF &&
+        copter.flightmode->mode_number() != Mode::Number::GUIDED) {
+        
+        if (!copter.set_mode(Mode::Number::GUIDED, ModeReason::GCS_COMMAND)) {
+            return MAV_RESULT_FAILED;
+        }
+    }
 
         float takeoff_alt = packet.z * 100;      // Convert m to cm
 

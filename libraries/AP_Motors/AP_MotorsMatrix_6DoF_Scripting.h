@@ -34,7 +34,7 @@ public:
     void set_roll_pitch(float roll_deg, float pitch_deg) override;
 
     // add_motor using raw roll, pitch, throttle and yaw factors, to be called from scripting
-    void add_motor(int8_t motor_num, float roll_factor, float pitch_factor, float yaw_factor, float throttle_factor, float forward_factor, float right_factor, bool reversible, uint8_t testing_order);
+    void add_motor(int8_t motor_num, float roll_factor, float pitch_factor, float yaw_factor, float throttle_factor, float forward_factor, float right_factor, bool reversible, uint8_t testing_order, bool is_servo);
 
     // if the expected number of motors have been setup then set as initalized
     bool init(uint8_t expected_num_motors) override;
@@ -51,6 +51,17 @@ public:
     }
     void disable_earth_thrust_vector() {
         _use_earth_thrust = false;
+    }
+
+      // 1. EL ENUM EN PUBLIC: Define los tipos de drones disponibles
+    enum class HardwareMapping {
+        DIRECT = 0,         // Salida directa lineal a PWM (drones omnidireccionales estándar)
+        TILTING_HEXA = 1,   // Tu lógica de atan2 y modulo actual
+        // ... nuevos en el futuro
+    };
+    // 2. LA FUNCIÓN EN PUBLIC: Para que Lua pueda llamarla
+    void set_hardware_mapping(uint8_t mapping_type) {
+        _hw_mapping = (HardwareMapping)mapping_type;
     }
 
 protected:
@@ -78,18 +89,24 @@ protected:
     // Array histórico para algoritmo Unwrap de servos de inclinación (Tilt)
     float _last_servo_angle_rad[AP_MOTORS_MAX_NUM_MOTORS];
 
+    bool _is_servo[AP_MOTORS_MAX_NUM_MOTORS]; // true si el motor es un servo de inclinación, false si es un motor de empuje axial
 
-    float _A[6][12];
-    float _A_pinv[12][6];
+   // --- VARIABLES NUEVAS PARA MATRIZ DINÁMICA ---
+    uint8_t _num_actuators = 0; // Guardará cuántos motores hemos añadido desde LUA
+
+    // Usamos el máximo de ArduPilot para reservar memoria de forma segura, 
+    // pero matemáticamente solo usaremos hasta '_num_actuators'.
+    float _A[6][AP_MOTORS_MAX_NUM_MOTORS];
+    float _A_pinv[AP_MOTORS_MAX_NUM_MOTORS][6];
 
     bool _allocator_initialized = false;
 
-    bool calcular_pseudoinversa_6x12(const float A[6][12], float A_pinv[12][6]);
+    // Actualizamos la firma de la función para que acepte el array máximo y un ancho dinámico
+    bool calcular_pseudoinversa(const float A[6][AP_MOTORS_MAX_NUM_MOTORS], float A_pinv[AP_MOTORS_MAX_NUM_MOTORS][6], uint8_t num_actuators);
 
-    // Geometría física de los rotores (Hexacóptero Tilting)
-    float rotor_x[6];
-    float rotor_y[6];
-    float rotor_km[6];
+    
+
+
 
     float _angulo_acumulado[6] = {0.0f};
     
@@ -98,6 +115,7 @@ private:
   Vector3f _earth_thrust_vector;
     bool _use_earth_thrust = false;
     static AP_MotorsMatrix_6DoF_Scripting *_singleton;
+    HardwareMapping _hw_mapping = HardwareMapping::DIRECT;
 
 
 };

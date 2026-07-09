@@ -228,6 +228,7 @@ public:
     friend class ModeAutorotate;
     friend class ModeTurtle;
     friend class ModeLoiter6DoF;
+    friend class ModeGuided6DoF;
 
     friend class _AutoTakeoff;
 
@@ -1056,6 +1057,9 @@ private:
 #endif
 #if MODE_LOITER_6DOF_ENABLED == ENABLED
     ModeLoiter6DoF mode_loiter6dof;
+#endif
+#if MODE_GUIDED_6DOF_ENABLED == ENABLED
+    ModeGuided6DoF mode_guided6dof;
 #endif
 
     // mode.cpp

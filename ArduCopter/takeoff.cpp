@@ -203,7 +203,39 @@ void _AutoTakeoff::run()
     pos_control->update_z_controller();
 
     // call attitude controller with auto yaw
-    attitude_control->input_thrust_vector_heading(pos_control->get_thrust_vector(), copter.flightmode->auto_yaw.get_heading());
+
+
+    // --- CAMBIO PARA 6DoF (Evita el giro loco) ---
+    if (copter.flightmode->mode_number() == Mode::Number::GUIDED_6DOF || 
+        copter.flightmode->mode_number() == Mode::Number::LOITER_6DOF) {
+        
+        // En lugar de usar la función de Guided normal, usamos una actitud nivelada
+        // o los offsets de tu script Lua para que no pelee con el Yaw.
+        float target_yaw_rad = copter.flightmode->auto_yaw.get_heading().yaw_angle_cd * 0.01f * DEG_TO_RAD;
+        
+        Quaternion target_quat;
+        // Mantenemos el dron recto (o con tus offsets) durante la subida
+        target_quat.from_euler(0, 0, target_yaw_rad); 
+        
+        attitude_control->input_quaternion(target_quat, Vector3f(0,0,0));
+
+        // Aplicamos el vector de empuje 6DoF para subir
+        Vector3f thrust_vec_neu = pos_control->get_thrust_vector();
+        float hover_thr = motors->get_throttle_hover();
+        Vector3f combined_thrust_neu = thrust_vec_neu * (hover_thr / 980.665f);
+        Vector3f thrust_vec_ned(combined_thrust_neu.x, combined_thrust_neu.y, -combined_thrust_neu.z);
+
+        if (AP_MotorsMatrix_6DoF_Scripting::get_singleton()) {
+            AP_MotorsMatrix_6DoF_Scripting::get_singleton()->set_earth_thrust_vector(thrust_vec_ned);
+        }
+    } else {
+        // Lógica original para drones normales (Iris, etc.)
+        attitude_control->input_thrust_vector_heading(pos_control->get_thrust_vector(), copter.flightmode->auto_yaw.get_heading());
+    }
+    // ----------------------------------------------
+
+
+
 
     // takeoff complete when we are less than 1% of the stopping distance from the target altitude
     // and 10% our maximum climb rate

@@ -184,6 +184,12 @@ Mode *Copter::mode_from_mode_num(const Mode::Number mode)
             break;
 #endif
 
+#if MODE_GUIDED_6DOF_ENABLED == ENABLED
+        case Mode::Number::GUIDED_6DOF:
+            ret = &mode_guided6dof;
+            break;
+#endif
+
         default:
             break;
     }
