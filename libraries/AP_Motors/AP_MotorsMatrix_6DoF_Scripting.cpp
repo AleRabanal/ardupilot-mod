@@ -38,6 +38,7 @@ void AP_MotorsMatrix_6DoF_Scripting::output_to_motors()
                     if (i >= 6 && i < 12) {
                         _actuator[i] = 0.5f; // Centro físico exacto -> Traducirá a 1500us
                         _last_servo_angle_rad[i - 6] = 0.0f; // Resetea histórico del unwrap
+
                     } else if (i < 6) {
                         _actuator[i] = 0.0f; // Motores de empuje apagados
                     }
