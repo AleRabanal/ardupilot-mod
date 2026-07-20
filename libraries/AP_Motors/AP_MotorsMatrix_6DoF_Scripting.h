@@ -14,7 +14,6 @@ public:
    AP_MotorsMatrix_6DoF_Scripting(uint16_t speed_hz = AP_MOTORS_SPEED_DEFAULT) :
         AP_MotorsMatrix(speed_hz)
     {
-        // Usamos nuestro propio puntero estático local para el Singleton
         if (_singleton != nullptr) {
             AP_HAL::panic("AP_MotorsMatrix 6DoF must be singleton");
         }
@@ -55,8 +54,8 @@ public:
 
       // 1. EL ENUM EN PUBLIC: Define los tipos de drones disponibles
     enum class HardwareMapping {
-        DIRECT = 0,         // Salida directa lineal a PWM (drones omnidireccionales estándar)
-        TILTING_HEXA = 1,   // Tu lógica de atan2 y modulo actual
+        DIRECT = 0,         // Salida directa lineal a PWM para motores fijos
+        TILTING_HEXA = 1,   // Tu lógica de atan2 y modulo actual para motores tilting
         // ... nuevos en el futuro
     };
     // 2. LA FUNCIÓN EN PUBLIC: Para que Lua pueda llamarla

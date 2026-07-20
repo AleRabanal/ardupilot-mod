@@ -36,8 +36,8 @@ void AP_MotorsMatrix_6DoF_Scripting::output_to_motors()
             for (uint8_t i = 0; i < AP_MOTORS_MAX_NUM_MOTORS; i++) {
                 if (motor_enabled[i]) {
                     if (_is_servo[i]) {
-                        _actuator[i] = 0.5f; // Centro físico exacto -> Traducirá a 1500us
-                        _last_servo_angle_rad[i - 6] = 0.0f; // Resetea histórico del unwrap
+                        _actuator[i] = 0.5f;
+                        _last_servo_angle_rad[i - 6] = 0.0f; // Resetea unwrap
                     } else {
                         _actuator[i] = 0.0f; // Motores de empuje apagados
                     }
@@ -86,7 +86,7 @@ void AP_MotorsMatrix_6DoF_Scripting::output_to_motors()
                             F_v[i] = _thrust_rpyt_out[i];     
                             F_l[i] = _thrust_rpyt_out[i + 6]; 
 
-                            // CORRECCIÓN: Cálculo de magnitud seguro al estilo ArduPilot
+                          
                             thrusts_mod[i] = safe_sqrt(sq(F_v[i]) + sq(F_l[i]));
 
                             if (thrusts_mod[i] > max_thrust) {
@@ -133,10 +133,10 @@ void AP_MotorsMatrix_6DoF_Scripting::output_to_motors()
 
                         float thrust_mod_scaled[6];     
                         float angle_rad[6];
-                    // float unwrapped_angle[6];
+        
                         // PASO 2: Calcular el ángulo del servo y aplicar el empuje escalado a cada motor
                         for (uint8_t j = 0; j < 6; j++) {
-                            // Volvemos a leer los componentes locales correspondientes al motor 'j'
+                           
                         
 
                             // --- CÓMPUTO DEL SERVO REAL (Dirección del vector) ---
@@ -144,20 +144,17 @@ void AP_MotorsMatrix_6DoF_Scripting::output_to_motors()
 
                             const float max_step = 0.01f; // Límite de paso máximo por ciclo 
                             
-                            // CORRECCIÓN: Usar angle_rad[j] (lo que calculaste arriba)
                             float error = angle_rad[j] - _angulo_acumulado[j];
                             
                             // Buscamos el camino más corto
                             error = wrap_PI(error);
                             
-                            // CORRECCIÓN VITAL: Limitar la velocidad usando max_step, no max_limit_rad!
                             error = constrain_float(error, -max_step, max_step);
                             
                             // Actualizamos el estado real del servo
                             _angulo_acumulado[j] += error;
                             
                             // Guardamos en la variable unwrapped_angle para tu logger
-                        // unwrapped_angle[j] = _angulo_acumulado[j]; 
 
                             // --- CÓMPUTO DEL MOTOR REAL (Módulo escalado) ---
                             thrust_mod_scaled[j] = thrusts_mod[j] * scale;
@@ -250,7 +247,6 @@ void AP_MotorsMatrix_6DoF_Scripting::output_to_motors()
                 SRV_Channels::set_output_pwm(function, (uint16_t)pwm_output);
 
             } else {
-                // Motores físicos: rango esperado [0, 4500] (Se encarga ArduPilot automáticamente de usar los límites de ESC)
                 SRV_Channels::set_output_scaled(function, _actuator[i] * 4500);
             }
         }

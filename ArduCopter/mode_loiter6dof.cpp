@@ -54,7 +54,7 @@ void ModeLoiter6DoF::run()
     target_yaw_rad += yaw_rate_rads * dt;
     target_yaw_rad = wrap_PI(target_yaw_rad);
 
-    // Leemos los ángulos deseados que pide tu script LUA
+    // Leemos los ángulos deseados que pide el script LUA
     float roll_off = 0.0f, pitch_off = 0.0f;
 #if AP_SCRIPTING_ENABLED
     auto *att_6dof = AC_AttitudeControl_Multi_6DoF::get_singleton();
@@ -65,7 +65,7 @@ void ModeLoiter6DoF::run()
 #endif
 
     // Construimos el target_quat con el Yaw integrado. 
-    // Al usar nuestro nuevo controlador de cuaterniones, no habrá ningún salto brusco
+    // Al usar el nuevo controlador de cuaterniones, no habrá ningún salto brusco
     // al pasar por los 90º de Pitch o Roll.
     Quaternion target_quat;
     target_quat.from_euler(radians(roll_off), radians(pitch_off), target_yaw_rad);
