@@ -1,0 +1,77 @@
+
+
+function cargar_parametros_simar()
+    -- Control de velocidad (Rate PIDs) de Roll y Pitch
+    param:set_and_save('ATC_RAT_RLL_P', 0.07)
+    param:set_and_save('ATC_RAT_RLL_I', 0.07)
+    param:set_and_save('ATC_RAT_RLL_D', 0.0)
+    
+    param:set_and_save('ATC_RAT_PIT_P', 0.07)
+    param:set_and_save('ATC_RAT_PIT_I', 0.07)
+    param:set_and_save('ATC_RAT_PIT_D', 0.0)
+    
+    -- Ajuste drástico de Yaw (Heredado de tu MC_YAWRATE_P 0.05 de PX4)
+    param:set_and_save('ATC_RAT_YAW_P', 0.16)
+    param:set_and_save('ATC_RAT_YAW_I', 0.05)
+    param:set_and_save('ATC_RAT_YAW_D', 0.1)
+    param:set_and_save('ATC_ANG_YAW_P', 3.0)
+
+    param:set_and_save('PSC_NE_POS_P', 5.0)
+    --param:set_and_save('PSC_NE_POS_P', 2.0)
+    param:set_and_save('PSC_NE_VEL_D', 1.2)
+    --param:set_and_save('PSC_NE_VEL_D', 0.3)
+
+    param:set_and_save('PSC_NE_VEL_P', 6.5)
+    --param:set_and_save('PSC_NE_VEL_P', 2.5)
+    param:set_and_save('PSC_NE_VEL_IMAX', 8.0)
+  
+    param:set_and_save('LOIT_BRK_DELAY', 0.1)
+    param:set_and_save('LOIT_SPEED_MS', 5.0)
+    
+    -- Filtros estabilizadores para Gazebo
+    param:set_and_save('INS_GYRO_FILTER', 15)
+
+   -- Valores DEFAULT EKF3 ArduCopter 4.5.x
+
+    param:set_and_save('EK3_DRAG_BCOEF_X', 0)
+    param:set_and_save('EK3_DRAG_BCOEF_Y', 0)
+    param:set_and_save('EK3_DRAG_MCOEF', 0)
+
+    param:set_and_save('EK3_ACC_P_NSE', 0.35)
+    param:set_and_save('EK3_GYRO_P_NSE', 0.015)
+
+    param:set_and_save('EK3_POSNE_M_NSE', 0.5)
+    param:set_and_save('EK3_VELNE_M_NSE', 0.5)
+
+    param:set_and_save('EK3_GLITCH_RAD', 25)
+
+    param:set_and_save('AHRS_GPS_USE', 1)
+    param:set_and_save('EK3_GPS_CHECK', 31)
+    param:set_and_save('COMPASS_USE', 0)
+    param:set_and_save('COMPASS_USE2', 0)
+    param:set_and_save('COMPASS_USE3', 0)   
+    
+    gcs:send_text(6, "6DoF SIMAR: ¡PID y parámetros inyectados con éxito!")
+    --attitude_control:set_forward_enable(true)
+    --attitude_control:set_lateral_enable(true)
+end
+
+-- Ejecutar la carga de parámetros tras un pequeño retraso de seguridad al arrancar
+local ejecutado = false
+local LOITER = 5
+local STABILIZE = 0
+local LOITER = 5  -- NO confíes en esto a largo plazo, pero ok temporal
+
+function update()
+
+    if not ejecutado then
+        cargar_parametros_simar()
+        ejecutado = true
+    end
+    
+    
+
+    return update, 20
+end
+
+return update()
