@@ -1,0 +1,982 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+    <model name='SIMAR_with_standoffs'>
+    <!-- Typhoon H body -->
+    <!-- <pose>1.0 1.0 3.0 0 0 0</pose> -->
+    <pose>0.0 0.0 0.7 0 0 0</pose>
+    <link name='base_link'>
+      <pose frame=''>0 0 0 0 0 0</pose>
+      <inertial>
+        <pose frame=''>0.001005 0 -0.0090035 0 -0 0</pose>
+        <!-- masa original Typhoon base_link 2.02 -->
+        <!-- <mass>2.02</mass>  -->
+        <mass>2.6</mass>
+        <inertia>
+          <ixx>0.026</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.026</iyy>
+          <iyz>0</iyz>
+          <izz>0.0515</izz>
+        </inertia>
+      </inertial>
+      <collision name='base_link_collision'>
+        <pose frame=''>0 0 0.0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.67 0.67 0.15</size>
+          </box>
+        </geometry>
+        <surface>
+          <contact>
+            <ode>
+              <min_depth>0.001</min_depth>
+              <max_vel>100.0</max_vel>
+            </ode>
+          </contact>
+          <friction>
+            <ode/>
+          </friction>
+        </surface>
+      </collision>
+     <!-- <visual name='base_link_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            
+            <uri>model://DJI550_with_standoffs/meshes/dji_f550_central_board.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>1 0 0 1</diffuse>
+          <script>
+              <name>Gazebo/DarkGrey</name>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+          </script>
+        </material>
+      </visual>
+      <gravity>1</gravity>
+      <velocity_decay/>
+      <self_collide>0</self_collide>
+      
+      -->
+      <visual name="body_visual">
+        <pose>0 0 0 0 0 0.524</pose>
+        <geometry>
+          <mesh><uri>model://SIMAR_with_standoffs/meshes/dji_f550_central_board.dae</uri></mesh>
+        </geometry>
+	<material>
+          <ambient>0.8 0.8 0.8 1</ambient>
+          <diffuse>0.8 0.8 0.8 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <albedo_map>model://SIMAR_with_standoffs/materials/textures/Carbon.jpg</albedo_map>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+
+      
+      <visual name="arm_0_visual">
+        <pose>0 -0.11 0.0 0 0 -1.5708</pose>
+        <geometry>
+          <mesh><uri>model://SIMAR_with_standoffs/meshes/dji_f550_arm.dae</uri></mesh>
+        </geometry>
+	<material>
+          <ambient>0.8 0.8 0.8 1</ambient>
+          <diffuse>0.8 0.8 0.8 1</diffuse>
+          <specular>0.2 0.2 0.2 1</specular>
+          <pbr>
+            <metal>
+              <albedo_map>model://SIMAR_with_standoffs/materials/textures/Marfil.jpg</albedo_map>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+
+      <visual name="motor_0_stator_visual">
+        <pose>0 -0.275 0.0 -0.349 -0.349 0</pose>
+        <geometry>
+          <mesh><uri>model://SIMAR_with_standoffs/meshes/dji_f550_rotor.dae</uri></mesh>
+        </geometry>
+	<material>
+          <ambient>0.8 0.8 0.8 1</ambient>
+          <diffuse>0.8 0.8 0.8 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <albedo_map>model://SIMAR_with_standoffs/materials/textures/Black.jpg</albedo_map>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      
+      <visual name="arm_1_visual">
+        <pose>0 0.11 0.0 0 0 1.5708</pose>
+        <geometry>
+          <mesh><uri>model://SIMAR_with_standoffs/meshes/dji_f550_arm.dae</uri></mesh>
+        </geometry>
+	<material>
+          <ambient>0.8 0.8 0.8 1</ambient>
+          <diffuse>0.8 0.8 0.8 1</diffuse>
+          <specular>0.2 0.2 0.2 1</specular>
+          <pbr>
+            <metal>
+              <albedo_map>model://SIMAR_with_standoffs/materials/textures/Marfil.jpg</albedo_map>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+
+      <visual name="motor_1_stator_visual">
+        <pose>0 0.275 0.0 -0.349 -0.349 0</pose>
+        <geometry>
+          <mesh><uri>model://SIMAR_with_standoffs/meshes/dji_f550_rotor.dae</uri></mesh>
+        </geometry>
+	<material>
+          <ambient>0.8 0.8 0.8 1</ambient>
+          <diffuse>0.8 0.8 0.8 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <albedo_map>model://SIMAR_with_standoffs/materials/textures/Black.jpg</albedo_map>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      
+      <visual name="arm_2_visual">
+        <pose>0.09526275000000001 -0.055 0.0 0 0 -0.5236</pose>
+        <geometry>
+          <mesh><uri>model://SIMAR_with_standoffs/meshes/dji_f550_arm.dae</uri></mesh>
+        </geometry>
+	<material>
+          <ambient>0.8 0.8 0.8 1</ambient>
+          <diffuse>0.8 0.8 0.8 1</diffuse>
+          <specular>0.2 0.2 0.2 1</specular>
+          <pbr>
+            <metal>
+              <albedo_map>model://SIMAR_with_standoffs/materials/textures/Black.jpg</albedo_map>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+
+      <visual name="motor_2_stator_visual">
+        <pose>0.23815687500000002 0.1375 0.0 -0.0 -0.0 0</pose>
+        <geometry>
+          <mesh><uri>model://SIMAR_with_standoffs/meshes/dji_f550_rotor.dae</uri></mesh>
+        </geometry>
+	<material>
+          <ambient>0.8 0.8 0.8 1</ambient>
+          <diffuse>0.8 0.8 0.8 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <albedo_map>model://SIMAR_with_standoffs/materials/textures/Black.jpg</albedo_map>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      
+      <visual name="arm_3_visual">
+        <pose>-0.09526275000000001 0.055 0.0 0 0 2.618</pose>
+        <geometry>
+          <mesh><uri>model://SIMAR_with_standoffs/meshes/dji_f550_arm.dae</uri></mesh>
+        </geometry>
+	<material>
+          <ambient>0.8 0.8 0.8 1</ambient>
+          <diffuse>0.8 0.8 0.8 1</diffuse>
+          <specular>0.2 0.2 0.2 1</specular>
+          <pbr>
+            <metal>
+              <albedo_map>model://SIMAR_with_standoffs/materials/textures/DarkRed.jpg</albedo_map>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+
+      <visual name="motor_3_stator_visual">
+        <pose>-0.23815687500000002 -0.1375 0.0 -0.0 -0.0 0</pose>
+        <geometry>
+          <mesh><uri>model://SIMAR_with_standoffs/meshes/dji_f550_rotor.dae</uri></mesh>
+        </geometry>
+	<material>
+          <ambient>0.8 0.8 0.8 1</ambient>
+          <diffuse>0.8 0.8 0.8 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <albedo_map>model://SIMAR_with_standoffs/materials/textures/Black.jpg</albedo_map>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      
+      <visual name="arm_4_visual">
+        <pose>0.09526275000000001 0.055 0.0 0 0 0.5236</pose>
+        <geometry>
+          <mesh><uri>model://SIMAR_with_standoffs/meshes/dji_f550_arm.dae</uri></mesh>
+        </geometry>
+	<material>
+          <ambient>0.8 0.8 0.8 1</ambient>
+          <diffuse>0.8 0.8 0.8 1</diffuse>
+          <specular>0.2 0.2 0.2 1</specular>
+          <pbr>
+            <metal>
+              <albedo_map>model://SIMAR_with_standoffs/materials/textures/Black.jpg</albedo_map>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+
+      <visual name="motor_4_stator_visual">
+        <pose>0.23815687500000002 -0.1375 0.0 0.1072 -0.4776 0.0</pose>
+        <geometry>
+          <mesh><uri>model://SIMAR_with_standoffs/meshes/dji_f550_rotor.dae</uri></mesh>
+        </geometry>
+	<material>
+          <ambient>0.8 0.8 0.8 1</ambient>
+          <diffuse>0.8 0.8 0.8 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <albedo_map>model://SIMAR_with_standoffs/materials/textures/Black.jpg</albedo_map>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      
+      <visual name="arm_5_visual">
+        <pose>-0.09526275000000001 -0.055 0.0 0 0 -2.618</pose>
+        <geometry>
+          <mesh><uri>model://SIMAR_with_standoffs/meshes/dji_f550_arm.dae</uri></mesh>
+        </geometry>
+	<material>
+          <ambient>0.8 0.8 0.8 1</ambient>
+          <diffuse>0.8 0.8 0.8 1</diffuse>
+          <specular>0.2 0.2 0.2 1</specular>
+          <pbr>
+            <metal>
+              <albedo_map>model://SIMAR_with_standoffs/materials/textures/DarkRed.jpg</albedo_map>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+
+      <visual name="motor_5_stator_visual">
+        <pose>-0.23815687500000002 0.1375 0.0 0.1072 -0.4776 0.0</pose>
+        <geometry>
+          <mesh><uri>model://SIMAR_with_standoffs/meshes/dji_f550_rotor.dae</uri></mesh>
+        </geometry>
+	<material>
+          <ambient>0.8 0.8 0.8 1</ambient>
+          <diffuse>0.8 0.8 0.8 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <albedo_map>model://SIMAR_with_standoffs/materials/textures/Black.jpg</albedo_map>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+    </link>
+    
+   
+
+ 
+    <link name="left_leg">
+      <inertial>
+        <!-- place holder -->
+        <pose frame=''>0 -0.14314 -0.207252 0 -0 0</pose>
+        <mass>0.001</mass>
+        <inertia>
+          <ixx>0.0001</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.0001</iyy>
+          <iyz>0</iyz>
+          <izz>0.0001</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose frame=''>-0.005 -0.14314 -0.207252 0 1.56893 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.012209</radius>
+            <length>0.3</length>
+          </cylinder>
+        </geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>10000</mu>
+              <mu2>10000</mu2>
+            </ode>
+          </friction>
+          <contact>
+            <ode>
+              
+              <max_vel>100.01</max_vel>
+              <min_depth>0.001</min_depth>
+            </ode>
+          </contact>
+        </surface>
+      </collision>
+      <collision name='collision_bar'>
+        <pose frame=''>0.00052 -0.08503 -0.121187 -0.501318 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.00914984</radius>
+            <length>0.176893</length>
+          </cylinder>
+        </geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>10000</mu>
+              <mu2>10000</mu2>
+            </ode>
+          </friction>
+          <contact>
+            <ode>
+             
+              <max_vel>100.01</max_vel>
+              <min_depth>0.001</min_depth>
+            </ode>
+          </contact>
+        </surface>
+      </collision>
+      <visual name='base_link_left_leg'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>0.001 0.001 0.001</scale>
+            <uri>model://SIMAR_with_standoffs/meshes/leg2_remeshed_v3.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <lighting>1</lighting>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/DarkGrey</name>
+            </script>
+            <ambient>0.3 0.3 0.3 1</ambient>
+            <diffuse>0.7 0.7 0.7 1</diffuse>
+            <specular>0.01 0.01 0.01 1</specular>
+            <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='left_leg_joint' type='fixed'>
+      <child>left_leg</child>
+      <parent>base_link</parent>
+      <pose frame=''>0.00026 -0.040515 -0.048 0 0 0</pose>
+      <axis>
+        <xyz>-1 0 0</xyz>
+        <limit>
+          <lower>0</lower>
+          <upper>1</upper>
+          <effort>100</effort>
+          <velocity>-1</velocity>
+          <stiffness>100000000</stiffness>
+          <dissipation>1</dissipation>
+        </limit>
+        <dynamics>
+          <damping>0.1</damping>
+        </dynamics>
+        <use_parent_model_frame>1</use_parent_model_frame>
+      </axis>
+      <physics>
+        <ode>
+          <implicit_spring_damper>1</implicit_spring_damper>
+        </ode>
+      </physics>
+    </joint>
+
+    <link name="right_leg">
+      <pose frame=''>0 0 0 0 -0 0</pose>
+      <inertial>
+        <!-- place holder -->
+        <pose frame=''>0 0.14314 -0.207252 0 0 0</pose>
+        <mass>0.001</mass>
+        <inertia>
+          <ixx>0.0001</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.0001</iyy>
+          <iyz>0</iyz>
+          <izz>0.0001</izz>
+        </inertia>
+      </inertial>
+      <collision name='collision'>
+        <pose frame=''>-0.005 0.14314 -0.207252 0 1.56893 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.012209</radius>
+            <length>0.3</length>
+          </cylinder>
+        </geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>10000</mu>
+              <mu2>10000</mu2>
+            </ode>
+          </friction>
+          <contact>
+            <ode>
+              
+              <max_vel>100.01</max_vel>
+              <min_depth>0.001</min_depth>
+            </ode>
+          </contact>
+        </surface>
+      </collision>
+      <collision name='collision_bar'>
+        <pose frame=''>0.00052 0.08503 -0.121187 0.501318 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.00914984</radius>
+            <length>0.176893</length>
+          </cylinder>
+        </geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>10000</mu>
+              <mu2>10000</mu2>
+            </ode>
+          </friction>
+          <contact>
+            <ode>
+              <max_vel>100.01</max_vel>
+              <min_depth>0.001</min_depth>
+            </ode>
+          </contact>
+        </surface>
+      </collision>
+      <visual name='base_link_right_leg'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>0.001 0.001 0.001</scale>
+            <uri>model://SIMAR_with_standoffs/meshes/leg1_remeshed_v3.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <lighting>1</lighting>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/DarkGrey</name>
+            </script>
+            <ambient>0.3 0.3 0.3 1</ambient>
+            <diffuse>0.7 0.7 0.7 1</diffuse>
+            <specular>0.01 0.01 0.01 1</specular>
+            <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+    </link>
+    <joint name='right_leg_joint' type='fixed'>
+      <child>right_leg</child>
+      <parent>base_link</parent>
+      <pose frame=''>0.00026 0.040515 -0.048 0 0 0</pose>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <limit>
+          <lower>0</lower>
+          <upper>1</upper>
+          <effort>100</effort>
+          <velocity>-1</velocity>
+          <stiffness>100000000</stiffness>
+          <dissipation>1</dissipation>
+        </limit>
+        <dynamics>
+          <damping>0.1</damping>
+        </dynamics>
+        <use_parent_model_frame>1</use_parent_model_frame>
+      </axis>
+      <physics>
+        <ode>
+          <implicit_spring_damper>1</implicit_spring_damper>
+        </ode>
+      </physics>
+    </joint>
+
+    <!-- <link name='typhoon_with_standoffs/imu_link'> -->
+    <link name='imu_link'>
+      <pose frame=''>0 0 0 0 0 3.1415927</pose>
+      <inertial>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <mass>0.015</mass>
+        <inertia>
+          <ixx>1e-05</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1e-05</iyy>
+          <iyz>0</iyz>
+          <izz>1e-05</izz>
+        </inertia>
+      </inertial>
+      <sensor name="imu_sensor" type="imu">
+        <gz_frame_id>imu_link</gz_frame_id>
+        <pose degrees="true">0 0 0 180 0 0</pose>
+        <always_on>1</always_on>
+        <update_rate>1000.0</update_rate>
+      </sensor>
+    </link>
+    <!-- <joint name='typhoon_with_standoffs/imu_joint' type='revolute'> -->
+    <joint name='imu_joint' type='revolute'>
+      <!-- <child>typhoon_with_standoffs/imu_link</child> -->
+      <child>imu_link</child>
+      <parent>base_link</parent>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <limit>
+          <lower>0</lower>
+          <upper>0</upper>
+          <effort>0</effort>
+          <velocity>0</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+        <use_parent_model_frame>1</use_parent_model_frame>
+      </axis>
+    </joint>
+    <link name='rotor_3'>
+      <pose frame=''>0.2381 0.1375 0.026 0.4657 -0.1528 0</pose>
+      
+      <inertial>
+        <mass>0.017</mass>
+        <inertia>
+          <ixx>5e-05</ixx><iyy>5e-05</iyy><izz>9.5e-05</izz>
+        </inertia>
+      </inertial>
+      <collision name='rotor_3_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <cylinder>
+            <length>0.005</length>
+            <radius>0.128</radius>
+          </cylinder>
+        </geometry>
+        <surface>
+          <contact>
+            <ode/>
+          </contact>
+          <friction>
+            <ode/>
+          </friction>
+        </surface>
+      </collision>
+      <visual name="rotor_3_visual">
+        <geometry>
+          <mesh>
+            <uri>model://SIMAR_with_standoffs/meshes/dji_f550_prop.dae</uri>
+            <scale>1 1 1</scale>
+          </mesh>
+        </geometry>
+	<material>
+          <ambient>0.8 0.8 0.8 1</ambient>
+          <diffuse>0.8 0.8 0.8 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <albedo_map>model://SIMAR/materials/textures/LightGrey.jpg</albedo_map>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <gravity>1</gravity>
+      <velocity_decay/>
+      <self_collide>0</self_collide>
+    </link>
+    <joint name='rotor_3_joint' type='revolute'>
+      <child>rotor_3</child>
+      <parent>base_link</parent>
+      <axis>
+        <xyz expressed_in="__model__">-0.136 -0.449 0.883</xyz>
+        <limit>
+          <lower>-1e+16</lower>
+          <upper>1e+16</upper>
+          <effort>10</effort>
+          <velocity>-1</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.005</damping>
+        </dynamics>
+        <use_parent_model_frame>1</use_parent_model_frame>
+      </axis>
+      <physics>
+        <ode>
+          <implicit_spring_damper>1</implicit_spring_damper>
+        </ode>
+      </physics>
+    </joint>
+    <link name='rotor_0'>
+      <pose frame=''>-0.2381 0.1375 0.026 -0.1072 0.4776 0.0</pose>
+      
+      <inertial>
+        <mass>0.017</mass>
+        <inertia>
+          <ixx>5e-05</ixx><iyy>5e-05</iyy><izz>9.5e-05</izz>
+        </inertia>
+      </inertial>
+      <collision name='rotor_0_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <cylinder>
+            <length>0.005</length>
+            <radius>0.128</radius>
+          </cylinder>
+        </geometry>
+        <surface>
+          <contact>
+            <ode/>
+          </contact>
+          <friction>
+            <ode/>
+          </friction>
+        </surface>
+      </collision>
+      <visual name="rotor_0_visual">
+        <geometry>
+          <mesh>
+            <uri>model://SIMAR_with_standoffs/meshes/dji_f550_prop.dae</uri>
+            <scale>-1 1 1</scale>
+          </mesh>
+        </geometry>
+	<material>
+          <ambient>0.8 0.8 0.8 1</ambient>
+          <diffuse>0.8 0.8 0.8 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <albedo_map>model://SIMAR/materials/textures/LightGrey.jpg</albedo_map>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <gravity>1</gravity>
+      <velocity_decay/>
+      <self_collide>0</self_collide>
+    </link>
+    <joint name='rotor_0_joint' type='revolute'>
+      <child>rotor_0</child>
+      <parent>base_link</parent>
+      <axis>
+        <xyz expressed_in="__model__">0.457 0.107 0.883</xyz>
+        <limit>
+          <lower>-1e+16</lower>
+          <upper>1e+16</upper>
+          <effort>10</effort>
+          <velocity>-1</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.005</damping>
+        </dynamics>
+        <use_parent_model_frame>1</use_parent_model_frame>
+      </axis>
+      <physics>
+        <ode>
+          <implicit_spring_damper>1</implicit_spring_damper>
+        </ode>
+      </physics>
+    </joint>
+    <link name='rotor_4'>
+      <pose frame=''>0 0.275 0.026 -0.349 -0.349 0</pose>
+     
+      <inertial>
+        <mass>0.017</mass>
+        <inertia>
+          <ixx>5e-05</ixx><iyy>5e-05</iyy><izz>9.5e-05</izz>
+        </inertia>
+      </inertial>
+      <collision name='rotor_4_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <cylinder>
+            <length>0.005</length>
+            <radius>0.128</radius>
+          </cylinder>
+        </geometry>
+        <surface>
+          <contact>
+            <ode/>
+          </contact>
+          <friction>
+            <ode/>
+          </friction>
+        </surface>
+      </collision>
+      <visual name="rotor_4_visual">
+        <geometry>
+          <mesh>
+            <uri>model://SIMAR_with_standoffs/meshes/dji_f550_prop.dae</uri>
+            <scale>-1 1 1</scale>
+          </mesh>
+        </geometry>
+	<material>
+          <ambient>0.8 0.8 0.8 1</ambient>
+          <diffuse>0.8 0.8 0.8 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <albedo_map>model://SIMAR/materials/textures/LightGrey.jpg</albedo_map>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <gravity>1</gravity>
+      <velocity_decay/>
+      <self_collide>0</self_collide>
+    </link>
+    <joint name='rotor_4_joint' type='revolute'>
+      <child>rotor_4</child>
+      <parent>base_link</parent>
+      <axis>
+        <xyz expressed_in="__model__">-0.321 0.342 0.883</xyz>
+        <limit>
+          <lower>-1e+16</lower>
+          <upper>1e+16</upper>
+          <effort>10</effort>
+          <velocity>-1</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.005</damping>
+        </dynamics>
+        <use_parent_model_frame>1</use_parent_model_frame>
+      </axis>
+      <physics>
+        <ode>
+          <implicit_spring_damper>1</implicit_spring_damper>
+        </ode>
+      </physics>
+      
+      <sensor name="rotor_4_ft" type="force_torque">
+	  <always_on>true</always_on>
+	  <update_rate>500</update_rate>
+
+	  <force_torque>
+	    <frame>child</frame>
+	    <measure_direction>child_to_parent</measure_direction>
+	  </force_torque>
+
+	</sensor>
+    </joint>
+    <link name='rotor_1'>
+      <pose frame=''>0.2381 -0.1375 0.026 -0.1072 0.4776 0.0</pose>
+
+      <inertial>
+        <mass>0.017</mass>
+        <inertia>
+          <ixx>5e-05</ixx><iyy>5e-05</iyy><izz>9.5e-05</izz>
+        </inertia>
+      </inertial>
+      <collision name='rotor_1_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <cylinder>
+            <length>0.005</length>
+            <radius>0.128</radius>
+          </cylinder>
+        </geometry>
+        <surface>
+          <contact>
+            <ode/>
+          </contact>
+          <friction>
+            <ode/>
+          </friction>
+        </surface>
+      </collision>
+      <visual name="rotor_1_visual">
+        <geometry>
+          <mesh>
+            <uri>model://SIMAR_with_standoffs/meshes/dji_f550_prop.dae</uri>
+            <scale>-1 1 1</scale>
+          </mesh>
+        </geometry>
+	<material>
+          <ambient>0.8 0.8 0.8 1</ambient>
+          <diffuse>0.8 0.8 0.8 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <albedo_map>model://SIMAR/materials/textures/LightGrey.jpg</albedo_map>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <gravity>1</gravity>
+      <velocity_decay/>
+      <self_collide>0</self_collide>
+    </link>
+    <joint name='rotor_1_joint' type='revolute'>
+      <child>rotor_1</child>
+      <parent>base_link</parent>
+      <axis>
+        <xyz expressed_in="__model__">0.457 0.107 0.883</xyz>
+        <limit>
+          <lower>-1e+16</lower>
+          <upper>1e+16</upper>
+          <effort>10</effort>
+          <velocity>-1</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.005</damping>
+        </dynamics>
+        <use_parent_model_frame>1</use_parent_model_frame>
+      </axis>
+      <physics>
+        <ode>
+          <implicit_spring_damper>1</implicit_spring_damper>
+        </ode>
+      </physics>
+    </joint>
+
+    <link name='rotor_5'>
+      <pose frame=''>0 -0.275 0.026 -0.349 -0.349 0</pose>
+
+      <inertial>
+        <mass>0.017</mass>
+        <inertia>
+          <ixx>5e-05</ixx><iyy>5e-05</iyy><izz>9.5e-05</izz>
+        </inertia>
+      </inertial>
+      <collision name='rotor_5_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <cylinder>
+            <length>0.005</length>
+            <radius>0.128</radius>
+          </cylinder>
+        </geometry>
+        <surface>
+          <contact>
+            <ode/>
+          </contact>
+          <friction>
+            <ode/>
+          </friction>
+        </surface>
+      </collision>
+      <visual name="rotor_5_visual">
+        <geometry>
+          <mesh>
+            <uri>model://SIMAR_with_standoffs/meshes/dji_f550_prop.dae</uri>
+            <scale>1 1 1</scale>
+          </mesh>
+        </geometry>
+	<material>
+          <ambient>0.8 0.8 0.8 1</ambient>
+          <diffuse>0.8 0.8 0.8 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <albedo_map>model://SIMAR/materials/textures/LightGrey.jpg</albedo_map>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <gravity>1</gravity>
+      <velocity_decay/>
+      <self_collide>0</self_collide>
+    </link>
+    <joint name='rotor_5_joint' type='revolute'>
+      <child>rotor_5</child>
+      <parent>base_link</parent>
+      <axis>
+        <xyz expressed_in="__model__">-0.321 0.342 0.883</xyz>
+        <limit>
+          <lower>-1e+16</lower>
+          <upper>1e+16</upper>
+          <effort>10</effort>
+          <velocity>-1</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.005</damping>
+        </dynamics>
+        <use_parent_model_frame>1</use_parent_model_frame>
+      </axis>
+      <physics>
+        <ode>
+          <implicit_spring_damper>1</implicit_spring_damper>
+        </ode>
+      </physics>
+    </joint>
+    <link name='rotor_2'>
+      <pose frame=''>-0.2381 -0.1375 0.026 0.4657 -0.1528 0.0</pose>
+
+      <inertial>
+        <mass>0.017</mass>
+        <inertia>
+          <ixx>5e-05</ixx><iyy>5e-05</iyy><izz>9.5e-05</izz>
+        </inertia>
+      </inertial>
+      <collision name='rotor_2_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <cylinder>
+            <length>0.005</length>
+            <radius>0.128</radius>
+          </cylinder>
+        </geometry>
+        <surface>
+          <contact>
+            <ode/>
+          </contact>
+          <friction>
+            <ode/>
+          </friction>
+        </surface>
+      </collision>
+      <visual name="rotor_2_visual">
+        <geometry>
+          <mesh>
+            <uri>model://SIMAR_with_standoffs/meshes/dji_f550_prop.dae</uri>
+            <scale>-1 1 1</scale>
+          </mesh>
+        </geometry>
+	<material>
+          <ambient>0.8 0.8 0.8 1</ambient>
+          <diffuse>0.8 0.8 0.8 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <albedo_map>model://SIMAR/materials/textures/LightGrey.jpg</albedo_map>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <gravity>1</gravity>
+      <velocity_decay/>
+      <self_collide>0</self_collide>
+    </link>
+    <joint name='rotor_2_joint' type='revolute'>
+      <child>rotor_2</child>
+      <parent>base_link</parent>
+      <axis>
+        <xyz expressed_in="__model__">-0.136 -0.449 0.883</xyz>
+        <limit>
+          <lower>-1e+16</lower>
+          <upper>1e+16</upper>
+          <effort>10</effort>
+          <velocity>-1</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.005</damping>
+        </dynamics>
+        <use_parent_model_frame>1</use_parent_model_frame>
+      </axis>
+      <physics>
+        <ode>
+          <implicit_spring_damper>1</implicit_spring_damper>
+        </ode>
+      </physics>
+    </joint>
+  </model>
+</sdf>

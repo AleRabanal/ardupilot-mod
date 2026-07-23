@@ -1,0 +1,40 @@
+Como lanzar la simulacion con ROS2:
+
+abrir cuatro temrinales
+1. Simulacion de gazebo: gz sim -v4 SIMAR_runway.sdf -r
+2. Simulador Ardupilot: sim_vehicle.py -v ArduCopter -f gazebo-iris --model JSON 
+
+3. MAVROS2: ros2 run mavros mavros_node --ros-args     -p fcu_url:=udp://:14550@127.0.0.1:14555     -p gcs_url:=udp://@127.0.0.1:14560     -p tgt_system:=1
+
+
+poner guided: ros2 service call /mavros/set_mode mavros_msgs/srv/SetMode "{base_mode: 0, custom_mode: 'GUIDED'}"
+
+armar motores: ros2 service call /mavros/cmd/arming mavros_msgs/srv/CommandBool "{value: true}"
+
+mision: ros2 run drone_control go_to_point
+
+
+meter en vehicleinfo.json despues de gazebo-iris:
+
+
+    "gazebo-SIMAR": {
+                "waf_target": "bin/arducopter",
+                "default_params_filename": [
+                    "default_params/copter.parm",
+                    "default_params/gazebo-SIMAR.parm"
+                ],
+                "external": true
+            },  
+            
+            
+nuevo param en autotest/default-param:
+
+FRAME_CLASS 2
+FRAME_TYPE 1
+ARMING_CHECK 0
+FS_THR_ENABLE 0
+FS_GCS_ENABLE 0
+SCR_ENABLE 1
+
+
+

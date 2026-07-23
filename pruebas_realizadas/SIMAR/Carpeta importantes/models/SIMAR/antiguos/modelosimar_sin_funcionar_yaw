@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sdf version="1.9">
+  {# ================================================================= #}
+  {# PARÁMETROS DEL DRON                                               #}
+  {# ================================================================= #}
+
+  {%- set z_base = 0.25 -%} {%- set body_mass = 2.6 -%}
+  {%- set body_ixx = 0.0260 -%}
+  {%- set body_izz = 0.0515 -%}
+
+  {# GEOMETRÍA DEL HEXÁGONO: Restaurado a 0.275 para que sea un F550 real #}
+  {%- set arm_len = 0.275 -%}
+  {%- set diag_x = arm_len * 0.866025 -%}
+  {%- set diag_y = arm_len * 0.5 -%}
+
+  {# El inicio del brazo visual sigue en el borde de la placa (11 cm) #}
+  {%- set arm_offset_from_center = 0.11 -%}
+  {%- set arm_offset_diag_x = arm_offset_from_center * 0.866025 -%}
+  {%- set arm_offset_diag_y = arm_offset_from_center * 0.5 -%}
+
+  {%- set board_yaw = 0.524 -%}
+
+  {# AJUSTES FINOS DE ALTURA: Levantamos motor, hélice y pata #}
+  {%- set z_arm = 0.0 -%}
+  {%- set z_motor = 0.000 -%}
+  {%- set z_prop = 0.024 -%}
+  {%- set z_leg = -0.085 -%}
+  {%- set leg_len = 0.17 -%}
+
+
+  {%- set prop_mass = 0.017 -%}
+  {%- set prop_radius = 0.127 -%}
+  {%- set prop_ixx = 0.000050 -%}
+  {%- set prop_izz = 0.000095 -%}
+
+  {# ================================================================= #}
+  {# DICCIONARIOS DE GEOMETRÍA                                         #}
+  {# ================================================================= #}
+
+
+
+  {# 0 → right #}
+  {# 1 → left #}
+  {# 2 → front-left #}
+  {# 3 → back-right #}
+  {# 4 → front-right #}
+  {# 5 → back-left #}
+
+
+  {%- set rotores = [
+
+    {'id': 0, 'x': 0,       'y': -arm_len, 'yaw': -1.5708, 'dir': 'cw',
+     'arm_x': 0,                   'arm_y': -arm_offset_from_center,  'texture': 'Marfil.jpg'},
+
+    {'id': 1, 'x': 0,       'y': arm_len,  'yaw': 1.5708,  'dir': 'ccw',
+     'arm_x': 0,                   'arm_y': arm_offset_from_center,   'texture': 'Marfil.jpg'},
+
+    {'id': 2, 'x': diag_x,  'y': -diag_y,  'yaw': -0.5236, 'dir': 'cw',
+     'arm_x': arm_offset_diag_x,   'arm_y': -arm_offset_diag_y,      'texture': 'DarkRed.jpg'},
+
+    {'id': 3, 'x': -diag_x, 'y': diag_y,   'yaw': 2.6180,  'dir': 'ccw',
+     'arm_x': -arm_offset_diag_x,  'arm_y': arm_offset_diag_y,       'texture': 'Marfil.jpg'},
+
+    {'id': 4, 'x': diag_x,  'y': diag_y,   'yaw': 0.5236,  'dir': 'ccw',
+     'arm_x': arm_offset_diag_x,   'arm_y': arm_offset_diag_y,       'texture': 'DarkRed.jpg'},
+
+    {'id': 5, 'x': -diag_x, 'y': -diag_y,  'yaw': -2.6180, 'dir': 'cw',
+     'arm_x': -arm_offset_diag_x,  'arm_y': -arm_offset_diag_y,      'texture': 'Marfil.jpg'},
+
+  ] -%}
+
+
+
+
+
+  {%- set patas = [
+    {'name': 'front_right', 'x': diag_x,  'y': -diag_y},
+    {'name': 'front_left',  'x': diag_x,  'y': diag_y},
+    {'name': 'back_right',  'x': -diag_x, 'y': -diag_y},
+    {'name': 'back_left',   'x': -diag_x, 'y': diag_y}
+  ] -%}
+
+  <model name="SIMAR">
+    <link name="base_link">
+      <pose>0 0 {{ z_base }} 0 0 0</pose>
+
+      <inertial>
+        <mass>{{ body_mass }}</mass>
+        <inertia>
+          <ixx>{{ body_ixx }}</ixx><ixy>0</ixy><ixz>0</ixz>
+          <iyy>{{ body_ixx }}</iyy><iyz>0</iyz>
+          <izz>{{ body_izz }}</izz>
+        </inertia>
+      </inertial>
+
+      <collision name="base_link_collision">
+        <geometry><cylinder><radius>0.3</radius><length>0.1</length></cylinder></geometry>
+      </collision>
+
+      <visual name="body_visual">
+        <pose>0 0 0 0 0 {{ board_yaw }}</pose>
+        <geometry>
+          <mesh><uri>model://SIMAR/meshes/dji_f550_central_board.dae</uri></mesh>
+        </geometry>
+	<material>
+          <ambient>0.8 0.8 0.8 1</ambient>
+          <diffuse>0.8 0.8 0.8 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <albedo_map>model://SIMAR/materials/textures/Carbon.jpg</albedo_map>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+
+      {% for r in rotores %}
+      <visual name="arm_{{ r.id }}_visual">
+        <pose>{{ r.arm_x }} {{ r.arm_y }} {{ z_arm }} 0 0 {{ r.yaw }}</pose>
+        <geometry>
+          <mesh><uri>model://SIMAR/meshes/dji_f550_arm.dae</uri></mesh>
+        </geometry>
+	<material>
+          <ambient>0.8 0.8 0.8 1</ambient>
+          <diffuse>0.8 0.8 0.8 1</diffuse>
+          <specular>0.2 0.2 0.2 1</specular>
+          <pbr>
+            <metal>
+              <albedo_map>model://SIMAR/materials/textures/{{ r.texture }}</albedo_map>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+
+      <visual name="motor_{{ r.id }}_stator_visual">
+        <pose>{{ r.x }} {{ r.y }} {{ z_motor }} 0 0 0</pose>
+        <geometry>
+          <mesh><uri>model://SIMAR/meshes/dji_f550_rotor.dae</uri></mesh>
+        </geometry>
+	<material>
+          <ambient>0.8 0.8 0.8 1</ambient>
+          <diffuse>0.8 0.8 0.8 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <albedo_map>model://SIMAR/materials/textures/Black.jpg</albedo_map>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      {% endfor %}
+
+      {% for p in patas %}
+      <collision name="{{ p.name }}_leg_collision">
+        <pose>{{ p.x }} {{ p.y }} {{ z_leg }} 0 0 0</pose>
+        <geometry><cylinder><radius>0.012</radius><length>{{ leg_len }}</length></cylinder></geometry>
+      </collision>
+
+      <visual name="{{ p.name }}_leg_visual">
+        <pose>{{ p.x }} {{ p.y }} {{ z_leg }} 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>model://SIMAR/meshes/dji_f550_leg_170mm.dae</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+	<material>
+          <ambient>0.8 0.8 0.8 1</ambient>
+          <diffuse>0.8 0.8 0.8 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <albedo_map>model://SIMAR/materials/textures/DarkGrey.jpg</albedo_map>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      {% endfor %}
+
+
+      <gravity>true</gravity>
+      <velocity_decay />
+
+      <sensor name="air_pressure_sensor" type="air_pressure">
+        <gz_frame_id>base_link</gz_frame_id>
+        <always_on>1</always_on>
+        <update_rate>50</update_rate>
+        <air_pressure>
+          <pressure>
+            <noise type="gaussian"><mean>0</mean><stddev>0.01</stddev></noise>
+          </pressure>
+        </air_pressure>
+      </sensor>
+
+      <sensor name="imu_sensor" type="imu">
+        <gz_frame_id>base_link</gz_frame_id>
+        <always_on>1</always_on>
+        <update_rate>250</update_rate>
+        <imu>
+          <angular_velocity>
+            <x><noise type="gaussian"><mean>0</mean><stddev>0.00018</stddev></noise></x>
+            <y><noise type="gaussian"><mean>0</mean><stddev>0.00018</stddev></noise></y>
+            <z><noise type="gaussian"><mean>0</mean><stddev>0.00018</stddev></noise></z>
+          </angular_velocity>
+          <linear_acceleration>
+            <x><noise type="gaussian"><mean>0</mean><stddev>0.0018</stddev></noise></x>
+            <y><noise type="gaussian"><mean>0</mean><stddev>0.0018</stddev></noise></y>
+            <z><noise type="gaussian"><mean>0</mean><stddev>0.0018</stddev></noise></z>
+          </linear_acceleration>
+        </imu>
+      </sensor>
+
+      <sensor name="magnetometer_sensor" type="magnetometer">
+        <gz_frame_id>base_link</gz_frame_id>
+        <always_on>1</always_on>
+        <update_rate>100</update_rate>
+        <magnetometer>
+          <x><noise type="gaussian"><stddev>0.0001</stddev></noise></x>
+          <y><noise type="gaussian"><stddev>0.0001</stddev></noise></y>
+          <z><noise type="gaussian"><stddev>0.0001</stddev></noise></z>
+        </magnetometer>
+      </sensor>
+
+      <sensor name="navsat_sensor" type="navsat">
+        <gz_frame_id>base_link</gz_frame_id>
+        <always_on>1</always_on>
+        <update_rate>30</update_rate>
+      </sensor>
+
+
+    </link>
+
+    {% for r in rotores %}
+    <link name="rotor_{{ r.id }}">
+      <pose>{{ r.x }} {{ r.y }} {{ z_base + z_prop }} 0 0 0</pose>
+      <inertial>
+        <mass>{{ prop_mass }}</mass>
+        <inertia>
+          <ixx>{{ prop_ixx }}</ixx><iyy>{{ prop_ixx }}</iyy><izz>{{ prop_izz }}</izz>
+        </inertia>
+      </inertial>
+
+      <visual name="rotor_{{ r.id }}_visual">
+        <geometry>
+          <mesh>
+            <uri>model://SIMAR/meshes/dji_f550_prop.dae</uri>
+            <scale>{{ '-1 1 1' if r.dir == 'cw' else '1 1 1' }}</scale>
+          </mesh>
+        </geometry>
+	<material>
+          <ambient>0.8 0.8 0.8 1</ambient>
+          <diffuse>0.8 0.8 0.8 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <albedo_map>model://SIMAR/materials/textures/LightGrey.jpg</albedo_map>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+    </link>
+
+    <joint name="rotor_{{ r.id }}_joint" type="revolute">
+      <parent>base_link</parent>
+      <child>rotor_{{ r.id }}</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit><lower>-1e+16</lower><upper>1e+16</upper></limit>
+      </axis>
+    </joint>
+    {% endfor %}
+
+
+
+    {% for r in rotores %}
+    <plugin filename="gz-sim-multicopter-motor-model-system" name="gz::sim::systems::MulticopterMotorModel">
+      <jointName>rotor_{{ r.id }}_joint</jointName>
+      <linkName>rotor_{{ r.id }}</linkName>
+      <turningDirection>{{ r.dir }}</turningDirection>
+      <timeConstantUp>0.0125</timeConstantUp>
+      <timeConstantDown>0.025</timeConstantDown>
+      <maxRotVelocity>1000</maxRotVelocity>
+      <motorConstant>8.5e-6</motorConstant>
+      <momentConstant>0.008</momentConstant>
+      <commandSubTopic>command/motor_speed</commandSubTopic>
+      <motorNumber>{{ r.id }}</motorNumber>
+      <rotorDragCoefficient>8.06428e-05</rotorDragCoefficient>
+      <rollingMomentCoefficient>1e-06</rollingMomentCoefficient>
+      <rotorVelocitySlowdownSim>10</rotorVelocitySlowdownSim>
+      <motorType>velocity</motorType>
+    </plugin>
+    {% endfor %}
+
+  </model>
+</sdf>
